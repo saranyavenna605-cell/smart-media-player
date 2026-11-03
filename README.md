@@ -148,26 +148,54 @@ gcc -Wall -Wextra -std=c99 -o test_suite test_suite.c algorithms.c data_structur
 
 ---
 
-## 🎮 Terminal Menu Options (0–17)
+## 🔊 Live Audio Output Through Laptop Speakers
+
+The Smart Media Player features a built-in hardware audio engine with zero external dependencies:
+1. **Acoustic Melody Synthesizer:** When any song is chosen, the player generates and plays the recognizable signature melody of that song live through your laptop speakers using standard Windows PCM audio (`winmm`).
+2. **Real MP3/WAV Support:** You can drop any real audio file into the `music/` folder (e.g. `music/1.mp3`, `music/2.mp3`, or `music/Blinding Lights.mp3`), and the player will stream the actual full song using Windows MCI!
+3. **Real-Time Visualizer:** Displays live sound waveform indicators while songs play.
+
+---
+
+## 🎮 Terminal Menu & Direct Song Selection
 
 ```
-=======================================================
-        SMART MEDIA PLAYER (C Data Structures)         
-=======================================================
-  [Now Playing: 'Bohemian Rhapsody' | Repeat-All: OFF]
--------------------------------------------------------
+================================================================================
+                  SMART MEDIA PLAYER (Pure C Data Structures)                   
+================================================================================
+  -------------------------------------------------------------
+  [<< PREV TRACK]: (#1) 'Bohemian Rhapsody' by Queen
+  [>>> NOW PLAYING]: (#2) 'Blinding Lights' by The Weeknd (03:20)
+  [>> NEXT TRACK]: (#3) 'Hotel California' by Eagles
+  -------------------------------------------------------------
+
+  [CURRENT PLAYLIST (Doubly Linked List)]:
+   [ 1] Bohemian Rhapsody         | Queen              | 05:54
+  >[ 2] Blinding Lights           | The Weeknd         | 03:20  <-- [PLAYING NOW]
+   [ 3] Hotel California          | Eagles             | 06:31
+   [ 4] Shape of You              | Ed Sheeran         | 03:53
+   [ 5] Billie Jean               | Michael Jackson    | 04:54
+   [ 6] Starboy                   | The Weeknd         | 03:50
+   [ 7] Smells Like Teen Spirit   | Nirvana            | 05:01
+   [ 8] Stay                      | The Kid LAROI      | 02:21
+   [ 9] As It Was                 | Harry Styles       | 02:47
+   [10] Rolling in the Deep       | Adele              | 03:48
+  [Repeat-All: OFF | Play History: 2 songs | Up Next Queue: 0 songs]
+--------------------------------------------------------------------------------
   1. Add Song to Playlist         10. Toggle Repeat-All (CLL)
   2. Remove Song from Playlist    11. Search Title in BST
-  3. Show Playlist (DLL)          12. Display A-Z Catalog (BST)
-  4. Play Current Song            13. QuickSort Library
+  3. Refresh Playlist View        12. Display A-Z Catalog (BST)
+  4. Play / Select Song by ID     13. QuickSort Library
   5. Next Song (Queue / DLL)      14. MergeSort Library
   6. Previous Song (DLL)          15. Binary Search (O(log n))
   7. Back Button (Stack - LIFO)   16. Smart Shuffle (Cooldown 4)
   8. Add to Up Next Queue (FIFO)  17. RUN FULL LIVE DEMO
   9. Play from Up Next Queue       0. Exit
-=======================================================
+================================================================================
+Select option (0-17) or type song number (e.g. #1 to #10) to play: 
 ```
 
+- **Direct Song Selection:** You can directly type `#1` through `#10` (or `play 2`) from the main prompt to immediately play that track through your speakers!
 - **Option 17 (LIVE DEMO):** Designed for lab evaluation and viva presentations! Selecting `17` automatically runs an end-to-end walkthrough of all 8 components without needing manual input.
 
 ---

@@ -54,7 +54,7 @@ static void showMenu(const Player *p) {
     printf("  8. Add to Up Next Queue (FIFO)  17. RUN FULL LIVE DEMO\n");
     printf("  9. Play from Up Next Queue       0. Exit\n");
     printf("================================================================================\n");
-    printf("Select an option (0-17): ");
+    printf("Select option (0-17) or type song number (e.g. #1 to #10) to play: ");
 }
 
 // Handles user input for adding a new song
@@ -288,18 +288,44 @@ int main(void) {
     initPlayer(&player);
     loadDefaultSongs(&player);
 
-    int choice = -1;
-    while (choice != 0) {
+    char input[64];
+    while (1) {
         showMenu(&player);
-        int status = readInt(&choice);
-        if (status == 0) {
-            // Reached EOF on input stream
+        if (!readLine(input, sizeof(input))) {
             printf("\nExiting Smart Media Player. Goodbye!\n");
             break;
         }
-        if (status < 0) {
-            printf("\nInvalid input! Please enter a number between 0 and 17.\n");
+        if (input[0] == '\0') continue;
+
+        // Check if user directly typed a song number like "#2", "play 2", or "p 2"
+        int directSongId = 0;
+        if (input[0] == '#') {
+            directSongId = atoi(input + 1);
+        } else if (strncmp(input, "play ", 5) == 0 || strncmp(input, "p ", 2) == 0) {
+            char *space = strchr(input, ' ');
+            if (space) directSongId = atoi(space + 1);
+        }
+
+        if (directSongId > 0) {
+            DLLNode *node = findSongDLL(&player.playlist, directSongId);
+            if (node != NULL) {
+                player.currentTrack = node;
+                playCurrent(&player);
+            } else {
+                printf("\n  [Error] Song ID %d not found in playlist.\n", directSongId);
+            }
             continue;
+        }
+
+        // Parse numerical menu option 0-17
+        int choice = atoi(input);
+        if (strcmp(input, "0") != 0 && choice == 0) {
+            printf("\nInvalid input! Select an option (0-17) or type a song ID like #1 to #10.\n");
+            continue;
+        }
+        if (choice == 0) {
+            printf("\nExiting Smart Media Player. Goodbye!\n");
+            break;
         }
 
         switch (choice) {
@@ -320,7 +346,6 @@ int main(void) {
             case 15: menuBinarySearch(&player); break;
             case 16: menuSmartShuffle(&player); break;
             case 17: runLiveDemo(); break;
-            case 0:  printf("\nExiting Smart Media Player. Goodbye!\n"); break;
             default: printf("\nInvalid option [%d]! Please select 0 to 17.\n", choice); break;
         }
     }

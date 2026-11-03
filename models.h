@@ -158,4 +158,9 @@ void addNewSongToLibrary(Player *p, Song s);
 int removeSongFromPlayer(Player *p, int songId);
 void freePlayer(Player *p);
 
+// Audio Engine Functions (Hardware audio playback)
+void initAudioEngine(void);
+void playSongAudio(int songId, const char *title);
+void stopSongAudio(void);
+
 #endif // MODELS_H
