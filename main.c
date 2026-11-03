@@ -28,28 +28,32 @@ static int readInt(int *outVal) {
     return 1;
 }
 
-// Displays the interactive main menu
+// Displays the interactive main menu with full playlist and current track indicator
 static void showMenu(const Player *p) {
-    printf("\n=======================================================\n");
-    printf("        SMART MEDIA PLAYER (C Data Structures)         \n");
-    printf("=======================================================\n");
-    if (p->currentTrack != NULL) {
-        printf("  [Now Playing: (#%d) '%s' | Repeat-All: %s]\n",
-               p->currentTrack->song.id, p->currentTrack->song.title, p->repeatAll ? "ON" : "OFF");
-    } else {
-        printf("  [Status: Idle | Repeat-All: %s]\n", p->repeatAll ? "ON" : "OFF");
-    }
-    printf("-------------------------------------------------------\n");
+    printf("\n================================================================================\n");
+    printf("                  SMART MEDIA PLAYER (Pure C Data Structures)                   \n");
+    printf("================================================================================\n");
+
+    // Playback status showing PREV, NOW PLAYING, and NEXT track
+    printPlaybackStatus(p);
+
+    // Full list of songs from the Doubly Linked List with active playing indicator
+    printf("\n  [CURRENT PLAYLIST (Doubly Linked List)]:\n");
+    displayPlaylistWithCurrent(&p->playlist, p->currentTrack);
+
+    printf("  [Repeat-All: %s | Play History: %d songs | Up Next Queue: %d songs]\n",
+           p->repeatAll ? "ON (Circular DLL)" : "OFF", p->history.size, p->upNext.size);
+    printf("--------------------------------------------------------------------------------\n");
     printf("  1. Add Song to Playlist         10. Toggle Repeat-All (CLL)\n");
     printf("  2. Remove Song from Playlist    11. Search Title in BST\n");
-    printf("  3. Show Playlist (DLL)          12. Display A-Z Catalog (BST)\n");
+    printf("  3. Refresh Playlist View        12. Display A-Z Catalog (BST)\n");
     printf("  4. Play / Select Song by ID     13. QuickSort Library\n");
     printf("  5. Next Song (Queue / DLL)      14. MergeSort Library\n");
     printf("  6. Previous Song (DLL)          15. Binary Search (O(log n))\n");
     printf("  7. Back Button (Stack - LIFO)   16. Smart Shuffle (Cooldown 4)\n");
     printf("  8. Add to Up Next Queue (FIFO)  17. RUN FULL LIVE DEMO\n");
     printf("  9. Play from Up Next Queue       0. Exit\n");
-    printf("=======================================================\n");
+    printf("================================================================================\n");
     printf("Select an option (0-17): ");
 }
 

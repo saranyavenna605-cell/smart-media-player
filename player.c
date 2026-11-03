@@ -32,6 +32,43 @@ void loadDefaultSongs(Player *p) {
     }
 }
 
+// Prints clear playback status showing PREV song, NOW PLAYING song, and NEXT song
+void printPlaybackStatus(const Player *p) {
+    if (p->currentTrack == NULL) {
+        printf("  [Status]: Idle (No song currently playing)\n");
+        return;
+    }
+    printf("  -------------------------------------------------------------\n");
+    if (p->currentTrack->prev != NULL) {
+        printf("  [<< PREV TRACK]: (#%d) '%s' by %s\n",
+               p->currentTrack->prev->song.id, p->currentTrack->prev->song.title, p->currentTrack->prev->song.artist);
+    } else if (p->repeatAll && p->playlist.tail != NULL) {
+        printf("  [<< PREV TRACK]: (#%d) '%s' by %s [Repeat-All Wrap]\n",
+               p->playlist.tail->song.id, p->playlist.tail->song.title, p->playlist.tail->song.artist);
+    } else {
+        printf("  [<< PREV TRACK]: (None - Already at start of playlist)\n");
+    }
+
+    char dur[10];
+    formatDuration(p->currentTrack->song.duration, dur);
+    printf("  [>>> NOW PLAYING]: (#%d) '%s' by %s (%s)\n",
+           p->currentTrack->song.id, p->currentTrack->song.title, p->currentTrack->song.artist, dur);
+
+    if (p->upNext.front != NULL) {
+        printf("  [>> NEXT TRACK]: (#%d) '%s' by %s [Priority: Up Next Queue]\n",
+               p->upNext.front->song.id, p->upNext.front->song.title, p->upNext.front->song.artist);
+    } else if (p->currentTrack->next != NULL) {
+        printf("  [>> NEXT TRACK]: (#%d) '%s' by %s\n",
+               p->currentTrack->next->song.id, p->currentTrack->next->song.title, p->currentTrack->next->song.artist);
+    } else if (p->repeatAll && p->playlist.head != NULL) {
+        printf("  [>> NEXT TRACK]: (#%d) '%s' by %s [Repeat-All Wrap]\n",
+               p->playlist.head->song.id, p->playlist.head->song.title, p->playlist.head->song.artist);
+    } else {
+        printf("  [>> NEXT TRACK]: (None - Reached end of playlist)\n");
+    }
+    printf("  -------------------------------------------------------------\n");
+}
+
 // Plays the current track and pushes it onto the history stack
 void playCurrent(Player *p) {
     if (p->playlist.head == NULL) {
@@ -43,8 +80,8 @@ void playCurrent(Player *p) {
     }
     p->isPlaying = 1;
     pushStack(&p->history, p->currentTrack->song);
-    printf("  >> NOW PLAYING: '%s' by %s (%d sec)\n",
-           p->currentTrack->song.title, p->currentTrack->song.artist, p->currentTrack->song.duration);
+    printf("\n  >> STARTING PLAYBACK:\n");
+    printPlaybackStatus(p);
 }
 
 // Advances playback to the next song (Queue priority, then DLL or CLL wrap)
@@ -53,9 +90,10 @@ void playNext(Player *p) {
     // Up Next Queue has top priority over regular playlist
     if (dequeue(&p->upNext, &nextSong)) {
         pushStack(&p->history, nextSong);
-        printf("  >> PLAYING FROM UP NEXT: '%s' by %s\n", nextSong.title, nextSong.artist);
         DLLNode *found = findSongDLL(&p->playlist, nextSong.id);
         if (found) p->currentTrack = found;
+        printf("\n  >> PLAYING FROM UP NEXT QUEUE:\n");
+        printPlaybackStatus(p);
         return;
     }
     if (p->currentTrack == NULL) {
@@ -66,13 +104,14 @@ void playNext(Player *p) {
         p->currentTrack = p->currentTrack->next;
     } else if (p->repeatAll) {
         p->currentTrack = p->playlist.head; // Circular wrap back to start
-        printf("  [Repeat-All Active: Looping back to start]\n");
+        printf("\n  [Repeat-All Active: Wrapped back to start of playlist]\n");
     } else {
-        printf("  [End of Playlist] No next song. (Toggle Repeat-All to loop)\n");
+        printf("\n  [End of Playlist] Reached last track. (Toggle Repeat-All to loop)\n");
         return;
     }
     pushStack(&p->history, p->currentTrack->song);
-    printf("  >> NOW PLAYING: '%s' by %s\n", p->currentTrack->song.title, p->currentTrack->song.artist);
+    printf("\n  >> ADVANCING TO NEXT TRACK:\n");
+    printPlaybackStatus(p);
 }
 
 // Navigates to the previous song in the playlist
@@ -85,13 +124,14 @@ void playPrev(Player *p) {
         p->currentTrack = p->currentTrack->prev;
     } else if (p->repeatAll) {
         p->currentTrack = p->playlist.tail; // Circular wrap backward to tail
-        printf("  [Repeat-All Active: Wrapping to end of playlist]\n");
+        printf("\n  [Repeat-All Active: Wrapped to end of playlist]\n");
     } else {
-        printf("  [Start of Playlist] Already at first track.\n");
+        printf("\n  [Start of Playlist] Already at first track.\n");
         return;
     }
     pushStack(&p->history, p->currentTrack->song);
-    printf("  >> NOW PLAYING: '%s' by %s\n", p->currentTrack->song.title, p->currentTrack->song.artist);
+    printf("\n  << RETURNING TO PREVIOUS TRACK:\n");
+    printPlaybackStatus(p);
 }
 
 // Pops history stack to navigate backwards in playback history
@@ -107,7 +147,8 @@ void playBack(Player *p) {
     
     DLLNode *node = findSongDLL(&p->playlist, prevSong.id);
     if (node != NULL) p->currentTrack = node;
-    printf("  << BACK: Returned to '%s' by %s\n", prevSong.title, prevSong.artist);
+    printf("\n  << BACK BUTTON (POPPED FROM HISTORY STACK):\n");
+    printPlaybackStatus(p);
 }
 
 // Toggles Repeat-All mode on and off

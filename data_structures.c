@@ -87,6 +87,27 @@ void displayDLL(const DLL *list) {
     printf("  Total songs in playlist: %d\n", list->size);
 }
 
+// Displays playlist with an active indicator on the currently playing song
+void displayPlaylistWithCurrent(const DLL *list, const DLLNode *current) {
+    if (list->head == NULL) {
+        printf("  (Playlist is empty)\n");
+        return;
+    }
+    DLLNode *curr = list->head;
+    while (curr != NULL) {
+        char timeStr[10];
+        formatDuration(curr->song.duration, timeStr);
+        if (curr == current) {
+            printf("  >[%2d] %-25s | %-18s | %s  <-- [PLAYING NOW]\n",
+                   curr->song.id, curr->song.title, curr->song.artist, timeStr);
+        } else {
+            printf("   [%2d] %-25s | %-18s | %s\n",
+                   curr->song.id, curr->song.title, curr->song.artist, timeStr);
+        }
+        curr = curr->next;
+    }
+}
+
 // Searches for a song by ID in the Doubly Linked List
 DLLNode* findSongDLL(const DLL *list, int songId) {
     DLLNode *curr = list->head;

@@ -101,6 +101,7 @@ void initDLL(DLL *list);
 void addSongDLL(DLL *list, Song s);
 int removeSongDLL(DLL *list, int songId);
 void displayDLL(const DLL *list);
+void displayPlaylistWithCurrent(const DLL *list, const DLLNode *current);
 DLLNode* findSongDLL(const DLL *list, int songId);
 void freeDLL(DLL *list);
 
@@ -145,6 +146,7 @@ Song smartShufflePick(Song pool[], int poolSize, const Stack *history, int windo
 // --- Function Declarations for Player Engine (player.c) ---
 void initPlayer(Player *p);
 void loadDefaultSongs(Player *p);
+void printPlaybackStatus(const Player *p);
 void playCurrent(Player *p);
 void playNext(Player *p);
 void playPrev(Player *p);
