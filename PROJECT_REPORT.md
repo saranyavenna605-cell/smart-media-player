@@ -197,8 +197,8 @@ The project includes an exhaustive unit test suite (`test_suite.c`) using standa
 
 ## 8. Future Scope
 
-1. **Persistent Storage:** Integrating lightweight binary file I/O (`fread`/`fwrite`) or JSON loading to save playlists between sessions.
-2. **Audio Decoding:** Interfacing with a lightweight audio decoding library (e.g., `miniaudio.h`) to stream actual MP3/WAV waveforms.
+1. **Persistent Storage:** Integrating lightweight binary file I/O (`fread`/`fwrite`) or JSON loading to save playlists and histories between sessions.
+2. **Cross-Platform Audio Engine:** Extending the current native Windows MCI (`winmm`) real-time audio playback to native Linux (ALSA/PulseAudio) and macOS (AudioToolbox) backends.
 3. **Self-Balancing Trees:** Upgrading the BST to an AVL or Red-Black Tree to guarantee $O(\log n)$ worst-case search times during skewed sequential insertions.
 4. **Volume Normalization:** Storing audio gain metrics inside the `Song` struct to auto-level playback loudness across tracks.
 

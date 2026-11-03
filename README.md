@@ -148,12 +148,13 @@ gcc -Wall -Wextra -std=c99 -o test_suite test_suite.c algorithms.c data_structur
 
 ---
 
-## 🔊 Live Audio Output Through Laptop Speakers
+## 🔊 Live Audio Output Through Laptop Speakers & Bluetooth Earpods
 
 The Smart Media Player features a built-in hardware audio engine with zero external dependencies:
-1. **Acoustic Melody Synthesizer:** When any song is chosen, the player generates and plays the recognizable signature melody of that song live through your laptop speakers using standard Windows PCM audio (`winmm`).
-2. **Real MP3/WAV Support:** You can drop any real audio file into the `music/` folder (e.g. `music/1.mp3`, `music/2.mp3`, or `music/Blinding Lights.mp3`), and the player will stream the actual full song using Windows MCI!
-3. **Real-Time Visualizer:** Displays live sound waveform indicators while songs play.
+1. **Pre-Bundled Studio MP3 Library:** All 10 default songs come pre-bundled with real studio-recorded MP3 tracks in the `music/` folder (including Ed Sheeran's *Shape of You*, Queen's *Bohemian Rhapsody*, The Weeknd's *Blinding Lights*, Eagles' *Hotel California*, Michael Jackson's *Billie Jean*, etc.).
+2. **Bluetooth & Speaker Support:** Uses native Windows Multimedia MCI (`winmm`), routing audio directly to your active playback device (laptop speakers, wired headphones, or Bluetooth earpods).
+3. **Full Song Playback:** Streams full audio tracks asynchronously in the background while the terminal menu remains responsive.
+4. **Real-Time Visualizer:** Displays live sound waveform indicators while songs play.
 
 ---
 
@@ -177,8 +178,8 @@ The Smart Media Player features a built-in hardware audio engine with zero exter
    [ 5] Billie Jean               | Michael Jackson    | 04:54
    [ 6] Starboy                   | The Weeknd         | 03:50
    [ 7] Smells Like Teen Spirit   | Nirvana            | 05:01
-   [ 8] Stay                      | The Kid LAROI      | 02:21
-   [ 9] As It Was                 | Harry Styles       | 02:47
+   [ 8] Believer                  | Imagine Dragons    | 03:24
+   [ 9] Perfect                   | Ed Sheeran         | 04:23
    [10] Rolling in the Deep       | Adele              | 03:48
   [Repeat-All: OFF | Play History: 2 songs | Up Next Queue: 0 songs]
 --------------------------------------------------------------------------------

@@ -64,6 +64,10 @@ static void writeMelodyWav(const char *filename, AudioNote notes[], int count) {
 void initAudioEngine(void) {
 #ifdef _WIN32
     CreateDirectory("music", NULL);
+    FILE *chkMp3 = fopen("music/4.mp3", "rb");
+    if (!chkMp3) chkMp3 = fopen("smart_media_player/music/4.mp3", "rb");
+    if (chkMp3) { fclose(chkMp3); return; } // Studio MP3 library detected
+
     FILE *chk = fopen("music/1.wav", "rb");
     if (chk) { fclose(chk); return; } // Already generated
 
@@ -111,29 +115,31 @@ static int findAudioFile(int id, const char *ext, char *outPath, int maxLen) {
     return 0;
 }
 
-// Plays song audio live through laptop speakers (MP3 if provided, or signature melody WAV)
+// Plays song audio live through laptop speakers or bluetooth earpods
 void playSongAudio(int songId, const char *title) {
     (void)title;
 #ifdef _WIN32
     stopSongAudio();
 
-    // Check if custom MP3 exists in music folder
+    // Check if studio MP3 exists in music folder
     char mp3Path[256];
     if (findAudioFile(songId, "mp3", mp3Path, sizeof(mp3Path))) {
         char cmd[300];
         sprintf(cmd, "open \"%s\" type mpegvideo alias current_song", mp3Path);
         mciSendString(cmd, NULL, 0, NULL);
         mciSendString("play current_song", NULL, 0, NULL);
-        printf("  ♪ [Audio Output]: Playing MP3 '%s' through laptop speakers!\n", mp3Path);
+        printf("  ♪ [Audio Output]: Playing real studio MP3 track live through laptop/earpods!\n");
+        printf("    Track File  : %s\n", mp3Path);
+        printf("    Visualizer  : [ █ ▄ █ ▆ ▃ █ ▇ █ ▆ ▅ █ ] Real Studio Audio Active\n");
         return;
     }
 
-    // Play signature acoustic melody WAV asynchronously
+    // Play signature acoustic melody WAV asynchronously as fallback
     char wavPath[256];
     if (findAudioFile(songId, "wav", wavPath, sizeof(wavPath))) {
         PlaySound(wavPath, NULL, SND_ASYNC | SND_FILENAME);
-        printf("  ♪ [Audio Output]: Playing live acoustic melody through laptop speakers!\n");
-        printf("    Visualizer: [ █ ▄ █ ▆ ▃ █ ▇ █ ] Active Sound Waveform\n");
+        printf("  ♪ [Audio Output]: Playing acoustic melody through laptop/earpods!\n");
+        printf("    Visualizer  : [ █ ▄ █ ▆ ▃ █ ▇ █ ] Active Sound Waveform\n");
     }
 #else
     (void)songId; (void)title;
@@ -201,8 +207,8 @@ void loadDefaultSongs(Player *p) {
         createSong(5, "Billie Jean", "Michael Jackson", 294),
         createSong(6, "Starboy", "The Weeknd", 230),
         createSong(7, "Smells Like Teen Spirit", "Nirvana", 301),
-        createSong(8, "Stay", "The Kid LAROI", 141),
-        createSong(9, "As It Was", "Harry Styles", 167),
+        createSong(8, "Believer", "Imagine Dragons", 204),
+        createSong(9, "Perfect", "Ed Sheeran", 263),
         createSong(10, "Rolling in the Deep", "Adele", 228)
     };
     for (int i = 0; i < 10; i++) {
