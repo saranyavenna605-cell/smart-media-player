@@ -798,9 +798,27 @@ void freePlayer(Player *p) {
 // ============================================================================
 
 // Clears remaining characters from input buffer
-static void clearBuffer(void) {
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
+static int readLine(char *buffer, int size) {
+    if (fgets(buffer, size, stdin) == NULL) {
+        return 0; // End-of-file (EOF) or stream closed
+    }
+    size_t len = strlen(buffer);
+    while (len > 0 && (buffer[len - 1] == '\n' || buffer[len - 1] == '\r')) {
+        buffer[--len] = '\0';
+    }
+    return 1;
+}
+
+// Reads an integer from stdin safely without buffer leftovers
+static int readInt(int *outVal) {
+    char buf[64];
+    if (!readLine(buf, sizeof(buf))) return 0; // EOF reached
+    if (buf[0] == '\0') return -1;             // User pressed enter on empty line
+    char *endPtr;
+    long val = strtol(buf, &endPtr, 10);
+    if (endPtr == buf) return -1;              // Not a valid number
+    *outVal = (int)val;
+    return 1;
 }
 
 // Displays the interactive main menu
@@ -809,8 +827,8 @@ static void showMenu(const Player *p) {
     printf("        SMART MEDIA PLAYER (Pure C Data Structures)    \n");
     printf("=======================================================\n");
     if (p->currentTrack != NULL) {
-        printf("  [Now Playing: '%s' | Repeat-All: %s]\n",
-               p->currentTrack->song.title, p->repeatAll ? "ON" : "OFF");
+        printf("  [Now Playing: (#%d) '%s' | Repeat-All: %s]\n",
+               p->currentTrack->song.id, p->currentTrack->song.title, p->repeatAll ? "ON" : "OFF");
     } else {
         printf("  [Status: Idle | Repeat-All: %s]\n", p->repeatAll ? "ON" : "OFF");
     }
@@ -818,7 +836,7 @@ static void showMenu(const Player *p) {
     printf("  1. Add Song to Playlist         10. Toggle Repeat-All (CLL)\n");
     printf("  2. Remove Song from Playlist    11. Search Title in BST\n");
     printf("  3. Show Playlist (DLL)          12. Display A-Z Catalog (BST)\n");
-    printf("  4. Play Current Song            13. QuickSort Library\n");
+    printf("  4. Play / Select Song by ID     13. QuickSort Library\n");
     printf("  5. Next Song (Queue / DLL)      14. MergeSort Library\n");
     printf("  6. Previous Song (DLL)          15. Binary Search (O(log n))\n");
     printf("  7. Back Button (Stack - LIFO)   16. Smart Shuffle (Cooldown 4)\n");
@@ -832,48 +850,83 @@ static void showMenu(const Player *p) {
 static void menuAddSong(Player *p) {
     int id, duration;
     char title[MAX_TITLE], artist[MAX_ARTIST];
+
     printf("Enter Song ID: ");
-    if (scanf("%d", &id) != 1) { clearBuffer(); return; }
-    clearBuffer();
-    printf("Enter Title: ");
-    if (scanf(" %[^\n]", title) != 1) return;
-    printf("Enter Artist: ");
-    if (scanf(" %[^\n]", artist) != 1) return;
+    if (readInt(&id) <= 0) { printf("  [Error] Invalid Song ID.\n"); return; }
+
+    printf("Enter Song Title: ");
+    if (!readLine(title, sizeof(title)) || title[0] == '\0') {
+        printf("  [Error] Song Title cannot be empty.\n"); return;
+    }
+
+    printf("Enter Artist Name: ");
+    if (!readLine(artist, sizeof(artist)) || artist[0] == '\0') {
+        printf("  [Error] Artist Name cannot be empty.\n"); return;
+    }
+
     printf("Enter Duration in seconds: ");
-    if (scanf("%d", &duration) != 1) { clearBuffer(); return; }
-    clearBuffer();
+    if (readInt(&duration) <= 0 || duration <= 0) {
+        printf("  [Error] Invalid duration.\n"); return;
+    }
 
     Song s = createSong(id, title, artist, duration);
     addNewSongToLibrary(p, s);
-    printf("  Song '%s' added successfully!\n", title);
+    printf("  [Success] Song '%s' added successfully!\n", title);
 }
 
 // Handles removing a song by ID
 static void menuRemoveSong(Player *p) {
     int id;
     printf("Enter Song ID to remove: ");
-    if (scanf("%d", &id) != 1) { clearBuffer(); return; }
-    clearBuffer();
+    if (readInt(&id) <= 0) { printf("  [Error] Invalid Song ID.\n"); return; }
+
     if (removeSongFromPlayer(p, id)) {
-        printf("  Song ID %d removed from playlist.\n", id);
+        printf("  [Success] Song ID %d removed from playlist.\n", id);
     } else {
-        printf("  Song ID %d not found.\n", id);
+        printf("  [Error] Song ID %d not found in playlist.\n", id);
     }
+}
+
+// Handles playing current track or selecting a specific song by ID
+static void menuPlay(Player *p) {
+    printf("Enter Song ID to play (or press Enter for current): ");
+    char buf[64];
+    if (readLine(buf, sizeof(buf)) && buf[0] != '\0') {
+        int id = atoi(buf);
+        if (id > 0) {
+            DLLNode *node = findSongDLL(&p->playlist, id);
+            if (node != NULL) {
+                p->currentTrack = node;
+            } else {
+                printf("  [Note] Song ID %d not found. Playing current selection.\n", id);
+            }
+        }
+    }
+    playCurrent(p);
+}
+
+// Handles adding a song to Up Next queue by ID
+static void menuAddUpNext(Player *p) {
+    int id;
+    printf("Enter Song ID to add to Up Next Queue: ");
+    if (readInt(&id) <= 0) { printf("  [Error] Invalid Song ID.\n"); return; }
+    addSongToUpNext(p, id);
 }
 
 // Handles searching for a song in the BST
 static void menuSearchBST(Player *p) {
     char query[MAX_TITLE];
     printf("Enter Song Title to search in BST: ");
-    clearBuffer();
-    if (scanf(" %[^\n]", query) != 1) return;
+    if (!readLine(query, sizeof(query)) || query[0] == '\0') {
+        printf("  [Error] Search title cannot be empty.\n"); return;
+    }
 
     BSTNode *node = searchBST(p->libraryBST, query);
     if (node != NULL) {
         printf("  [Found in BST]:\n");
         printSong(node->song);
     } else {
-        printf("  Song '%s' not found in library BST.\n", query);
+        printf("  [Not Found] Song '%s' not found in library BST.\n", query);
     }
 }
 
@@ -881,11 +934,11 @@ static void menuSearchBST(Player *p) {
 static void menuSort(Player *p, int isMerge) {
     int choice;
     printf("Sort by: 1. Title  2. Artist  3. Duration: ");
-    if (scanf("%d", &choice) != 1 || choice < 1 || choice > 3) {
-        clearBuffer();
+    if (readInt(&choice) <= 0 || choice < 1 || choice > 3) {
+        printf("  [Error] Invalid choice! Select 1, 2, or 3.\n");
         return;
     }
-    clearBuffer();
+
     if (isMerge) {
         mergeSort(p->libraryArray, 0, p->libraryCount - 1, choice);
         printf("\n  [MergeSort Complete - Sorted by %s]:\n",
@@ -904,9 +957,11 @@ static void menuSort(Player *p, int isMerge) {
 static void menuBinarySearch(Player *p) {
     char query[MAX_TITLE];
     printf("Enter Title for Binary Search: ");
-    clearBuffer();
-    if (scanf(" %[^\n]", query) != 1) return;
+    if (!readLine(query, sizeof(query)) || query[0] == '\0') {
+        printf("  [Error] Title query cannot be empty.\n"); return;
+    }
 
+    // Binary search requires the array to be sorted by Title first
     quickSort(p->libraryArray, 0, p->libraryCount - 1, 1);
     int idx = binarySearchSong(p->libraryArray, p->libraryCount, query);
     if (idx != -1) {
@@ -920,7 +975,7 @@ static void menuBinarySearch(Player *p) {
 // Handles Smart Shuffle playback
 static void menuSmartShuffle(Player *p) {
     if (p->libraryCount == 0) {
-        printf("  Library is empty.\n");
+        printf("  [Error] Song library is empty.\n");
         return;
     }
     Song pick = smartShufflePick(p->libraryArray, p->libraryCount, &p->history, SMART_SHUFFLE_WINDOW);
@@ -1025,9 +1080,14 @@ int main(void) {
     int choice = -1;
     while (choice != 0) {
         showMenu(&player);
-        if (scanf("%d", &choice) != 1) {
-            clearBuffer();
-            printf("Invalid input. Enter a number between 0 and 17.\n");
+        int status = readInt(&choice);
+        if (status == 0) {
+            // Reached EOF on input stream
+            printf("\nExiting Smart Media Player. Goodbye!\n");
+            break;
+        }
+        if (status < 0) {
+            printf("\nInvalid input! Please enter a number between 0 and 17.\n");
             continue;
         }
 
@@ -1035,17 +1095,11 @@ int main(void) {
             case 1:  menuAddSong(&player); break;
             case 2:  menuRemoveSong(&player); break;
             case 3:  printf("\n--- Current Playlist (DLL) ---\n"); displayDLL(&player.playlist); break;
-            case 4:  playCurrent(&player); break;
+            case 4:  menuPlay(&player); break;
             case 5:  playNext(&player); break;
             case 6:  playPrev(&player); break;
             case 7:  playBack(&player); break;
-            case 8:  {
-                int id;
-                printf("Enter Song ID to add to Up Next: ");
-                if (scanf("%d", &id) == 1) addSongToUpNext(&player, id);
-                clearBuffer();
-                break;
-            }
+            case 8:  menuAddUpNext(&player); break;
             case 9:  playUpNext(&player); break;
             case 10: toggleRepeatAll(&player); break;
             case 11: menuSearchBST(&player); break;
@@ -1056,7 +1110,7 @@ int main(void) {
             case 16: menuSmartShuffle(&player); break;
             case 17: runLiveDemo(); break;
             case 0:  printf("\nExiting Smart Media Player. Goodbye!\n"); break;
-            default: printf("Invalid choice! Please select 0 to 17.\n"); break;
+            default: printf("\nInvalid option [%d]! Please select 0 to 17.\n", choice); break;
         }
     }
 
