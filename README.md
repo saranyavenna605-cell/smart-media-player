@@ -1,78 +1,205 @@
-# 🎵 Smart Media Player — Advanced DSA Project
+# 🎵 Smart Media Player - Data Structures Project in Plain C
 
-A complete, high-performance **Smart Media Player** built from scratch using custom, node-based Data Structures and Algorithms in **Python** and **C++**.
+A terminal-based **Smart Media Player** written in **pure, beginner-friendly C** (`gcc`, standard library only). 
+Designed specifically for a college **Data Structures and Algorithms (DSA)** coursework presentation and viva voce examination.
 
-Designed to satisfy academic project requirements with a clean, defensible architecture that avoids generic management clichés.
-
----
-
-## 🚀 Key Features & DSA Mapping
-
-| Feature | Data Structure / Algorithm | File |
-| :--- | :--- | :--- |
-| **Playlist (Next & Previous)** | **Doubly Linked List (DLL)** | [data_structures.py](data_structures.py) |
-| **Repeat-All Mode** | **Circular Doubly Linked List (CLL)** | [data_structures.py](data_structures.py) |
-| **"Up Next" Priority Queue** | **Queue (FIFO)** | [data_structures.py](data_structures.py) |
-| **Play History & Back Button** | **Stack (LIFO)** | [data_structures.py](data_structures.py) |
-| **Library Search by Title** | **Binary Search Tree (BST)** | [data_structures.py](data_structures.py) |
-| **A-Z Catalogue Listing** | **BST In-order Traversal** | [data_structures.py](data_structures.py) |
-| **Sorting by Title/Artist/Duration** | **QuickSort & MergeSort** | [algorithms.py](algorithms.py) |
-| **Logarithmic Library Lookup** | **Binary Search ($O(\log n)$)** | [algorithms.py](algorithms.py) |
-| **The Twist: Smart Shuffle** | **Sliding Cooldown Randomizer** | [algorithms.py](algorithms.py) |
-
-> [!TIP]
-> **The Algorithmic Twist:**
-> Standard random shuffle often clusters and repeats recently played songs. The **Smart Shuffle Engine** maintains a sliding cooldown window of size $N$ (e.g., $N=4$ songs). It cross-references the candidate pool against the **History Stack** to guarantee that **no song played within the last $N$ tracks is repeated**.
+Every function is short (~20 lines max), clearly commented in plain English, and avoids complex macros, function pointers, or obscure C tricks.
 
 ---
 
-## 📁 Project Directory Layout
-
-```
-smart_media_player/
-├── models.py                # Song data model with duration formatting
-├── data_structures.py        # Node-based DLL, CLL, Queue, Stack, BST
-├── algorithms.py             # Custom QuickSort, MergeSort, Binary Search, Smart Shuffle
-├── player.py                 # SmartMediaPlayer playback engine & precedence router
-├── main.py                   # Interactive Terminal UI & automated demo
-├── test_suite.py             # Exhaustive automated unit tests (9 tests)
-├── smart_media_player.cpp    # Complete standalone C++17 implementation
-├── PROJECT_REPORT.md         # Full academic project report with viva Q&A
-└── README.md                 # Quickstart guide
-```
+## 📋 Table of Contents
+1. [Core Features & DSA Mapping](#-core-features--dsa-mapping)
+2. [File-by-File Plain English Explanation](#-file-by-file-plain-english-explanation)
+3. [How to Compile and Run](#-how-to-compile-and-run)
+4. [How to Run Unit Tests](#-how-to-run-unit-tests)
+5. [Terminal Menu Options (0–17)](#-terminal-menu-options-017)
+6. [The Algorithmic Twist: Smart Shuffle](#-the-algorithmic-twist-smart-shuffle)
+7. [Viva Voce & Presentation Cheat Sheet](#-viva-voce--presentation-cheat-sheet)
 
 ---
 
-## ⚡ How to Run
+## 🚀 Core Features & DSA Mapping
 
-### 1. Interactive Terminal UI (Python)
-Launch the interactive player with playback controls, search, queue, and dashboard:
-```powershell
-python main.py
-```
+| Feature | Data Structure / Algorithm | File | Complexity |
+| :--- | :--- | :--- | :--- |
+| **Playlist (Next & Prev)** | **Doubly Linked List (DLL)** | `data_structures.c` | $O(1)$ step |
+| **Repeat-All Mode** | **Circular Doubly Linked List (CLL)** | `data_structures.c` | $O(1)$ loop wrap |
+| **"Up Next" Priority Queue** | **Queue (FIFO)** | `data_structures.c` | $O(1)$ enqueue/dequeue |
+| **Play History & Back Button** | **Stack (LIFO)** | `data_structures.c` | $O(1)$ push/pop |
+| **Library Catalog & Search** | **Binary Search Tree (BST)** | `data_structures.c` | $O(\log n)$ search / $O(n)$ in-order |
+| **Multi-field Sorting** | **QuickSort & MergeSort** | `algorithms.c` | $O(n \log n)$ |
+| **Exact Title Lookup** | **Binary Search** | `algorithms.c` | $O(\log n)$ |
+| **Cooldown Randomizer** | **Smart Shuffle Engine** | `algorithms.c` | $O(N)$ window verification |
 
-### 2. Run Automated Examiner Demonstration
-To showcase all 8 DSA modules sequentially in a live demo:
-```powershell
-python -c "import sys; sys.path.insert(0, '.'); from player import SmartMediaPlayer; from main import run_automated_live_demo; p = SmartMediaPlayer(); p.load_default_library(); run_automated_live_demo(p)"
-```
-*(Or launch `python main.py` and select option `17`)*.
+---
 
-### 3. Run Automated Unit Test Suite
-Verify that every data structure, edge condition, and the smart shuffle cooldown passes:
-```powershell
-python test_suite.py
-```
+## 📂 File-by-File Plain English Explanation
 
-### 4. Compile and Run the C++ Implementation
-If your examiner asks for C++:
+### 1. `models.h`
+- Defines the `Song` structure: `id`, `title[50]`, `artist[50]`, and `duration` (in seconds).
+- Defines the node and header structures for:
+  - `DLLNode` and `DLL` (Doubly Linked List)
+  - `CLLNode` and `CLL` (Circular Doubly Linked List)
+  - `QueueNode` and `Queue` (FIFO Queue)
+  - `StackNode` and `Stack` (LIFO Stack)
+  - `BSTNode` (Binary Search Tree)
+- Declares the `Player` engine state structure and all function prototypes across the project.
+
+### 2. `data_structures.c`
+Contains the implementation of all 5 data structures built completely from scratch using standard pointers and `malloc`/`free`:
+- **Doubly Linked List (DLL):** Maintains `head`, `tail`, `prev`, and `next` pointers. Used for linear playlist navigation (Next/Previous).
+- **Circular Doubly Linked List (CLL):** The `head->prev` points to `tail` and `tail->next` points to `head`. Used for infinite Repeat-All looping.
+- **Queue (FIFO):** Singly linked list with `front` and `rear` pointers. Song added at rear (`enqueue`) and played first from front (`dequeue`).
+- **Stack (LIFO):** Singly linked list with `top` pointer. When a song plays, it is pushed to top. Pressing "Back" pops the stack to return to the previous track.
+- **Binary Search Tree (BST):** Nodes organized alphabetically by song title (`left` < `root` < `right`). In-order traversal (`Left -> Root -> Right`) automatically prints songs in A-Z order.
+
+### 3. `algorithms.c`
+Implements core sorting, searching, and randomization algorithms:
+- **QuickSort:** Recursive divide-and-conquer using Lomuto partitioning. Can sort library array by Title, Artist, or Duration.
+- **MergeSort:** Stable divide-and-conquer algorithm with $O(n \log n)$ guaranteed time complexity.
+- **Binary Search:** Searches a sorted array for a song title in $O(\log n)$ time by repeatedly halving the search space.
+- **Smart Shuffle:** Solves the playlist repetition problem using a cooldown window of size $N=4$ tracks cross-referenced against the History Stack.
+
+### 4. `player.c`
+The central player engine that connects user commands to the data structures:
+- Manages priority routing: if songs exist in the **Up Next Queue**, they are played before continuing the regular playlist.
+- Handles Repeat-All toggling, history tracking on every play event, and freeing all allocated memory.
+
+### 5. `main.c`
+The user-facing terminal application:
+- Provides a clean, numbered menu (Options 0 to 17).
+- Contains input validation to avoid infinite loops on invalid input.
+- Includes **Option 17 (LIVE DEMO)**: an automated presentation run that showcases every single data structure and algorithm with explanatory output.
+
+### 6. `test_suite.c`
+A standalone automated test file using standard C `assert()`:
+- 8 individual test suites verifying DLL, CLL, Queue, Stack, BST, QuickSort, MergeSort, Binary Search, and Smart Shuffle.
+
+### 7. `smart_media_player.c` (Standalone Single-File Version)
+Contains the **entire pure C project in one self-contained file** (all structs, DLL, CLL, Queue, Stack, BST, QuickSort, MergeSort, Binary Search, Smart Shuffle, menu, and Live Demo).
+- Perfect for single-file submission requirements or online C compilers.
+
+### 8. `Makefile`
+- `make`: Compiles modular files (`main.c`, `player.c`, `algorithms.c`, `data_structures.c`) into `./smart_media_player`.
+- `make single`: Compiles the standalone single-file `smart_media_player.c` directly.
+- `make test`: Builds and runs the automated unit tests `./test_suite`.
+- `make clean`: Removes all compiled binaries and object files.
+
+### 9. `PROJECT_REPORT.md`
+A complete academic project report covering problem background, architecture, algorithm trace, complexity tables, and 20+ viva questions.
+
+---
+
+## 🛠️ How to Compile and Run
+
+### Option A: Using `make` (Recommended)
 ```bash
-g++ -std=c++17 smart_media_player.cpp -o smart_media_player
+# Build the smart media player executable
+make
+
+# Run the program (Linux / macOS)
 ./smart_media_player
+
+# Run the program (Windows Command Prompt / PowerShell)
+.\smart_media_player.exe
 ```
-*(On Windows with MinGW or MSVC cl, or within any online C++ compiler like Replit/GDB).*
+
+### Option B: Direct GCC Compilation (One-liner)
+If `make` is not installed on your system, compile directly with GCC:
+```bash
+gcc -Wall -Wextra -std=c99 -o smart_media_player main.c player.c algorithms.c data_structures.c
+.\smart_media_player.exe
+```
 
 ---
 
-## 🎓 Viva Voce & Academic Defense
-For the full complexity analysis table, architecture diagrams, and 20+ anticipated examiner questions with complete model answers, consult [PROJECT_REPORT.md](PROJECT_REPORT.md).
+## 🧪 How to Run Unit Tests
+
+### Option A: Using `make test`
+```bash
+make test
+```
+
+### Option B: Direct Compilation
+```bash
+gcc -Wall -Wextra -std=c99 -o test_suite test_suite.c algorithms.c data_structures.c
+.\test_suite.exe
+```
+
+**Expected Output:**
+```
+=======================================================
+   RUNNING SMART MEDIA PLAYER DATA STRUCTURE TEST SUITE
+=======================================================
+
+  [PASS] Doubly Linked List (DLL) tests passed!
+  [PASS] Circular Doubly Linked List (CLL) tests passed!
+  [PASS] Queue (FIFO - Up Next) tests passed!
+  [PASS] Stack (LIFO - History) tests passed!
+  [PASS] Binary Search Tree (BST) tests passed!
+  [PASS] QuickSort & MergeSort tests passed!
+  [PASS] Binary Search (O(log n)) tests passed!
+  [PASS] Smart Shuffle Cooldown Algorithm tests passed!
+
+-------------------------------------------------------
+  ALL 8 TEST SUITES COMPLETED SUCCESSFULLY! (8/8 PASS)
+=======================================================
+```
+
+---
+
+## 🎮 Terminal Menu Options (0–17)
+
+```
+=======================================================
+        SMART MEDIA PLAYER (C Data Structures)         
+=======================================================
+  [Now Playing: 'Bohemian Rhapsody' | Repeat-All: OFF]
+-------------------------------------------------------
+  1. Add Song to Playlist         10. Toggle Repeat-All (CLL)
+  2. Remove Song from Playlist    11. Search Title in BST
+  3. Show Playlist (DLL)          12. Display A-Z Catalog (BST)
+  4. Play Current Song            13. QuickSort Library
+  5. Next Song (Queue / DLL)      14. MergeSort Library
+  6. Previous Song (DLL)          15. Binary Search (O(log n))
+  7. Back Button (Stack - LIFO)   16. Smart Shuffle (Cooldown 4)
+  8. Add to Up Next Queue (FIFO)  17. RUN FULL LIVE DEMO
+  9. Play from Up Next Queue       0. Exit
+=======================================================
+```
+
+- **Option 17 (LIVE DEMO):** Designed for lab evaluation and viva presentations! Selecting `17` automatically runs an end-to-end walkthrough of all 8 components without needing manual input.
+
+---
+
+## 🔀 The Algorithmic Twist: Smart Shuffle
+
+A common flaw with naive random shuffle (`rand() % N`) is that tracks often repeat shortly after being played, ruining the user experience.
+
+The **Smart Shuffle Engine** solves this with a **3-step Sliding Cooldown Window** ($N = 4$):
+1. **Window Extraction:** Reads the last $N$ songs from the top of the **History Stack** without popping them.
+2. **Eligibility Filtering:** Iterates through the song library array and filters out any song whose ID appears in the cooldown window.
+3. **Random Selection:** Chooses uniformly at random (`rand()`) **only from the eligible pool outside the window**.
+4. **Window Relaxation (Deadlock Prevention):** If the total song pool has fewer than $N+1$ songs, the window size dynamically shrinks to `poolSize - 1` so the player never gets stuck.
+
+---
+
+## 🎓 Viva Voce & Presentation Cheat Sheet
+
+1. **Why use a Doubly Linked List for a playlist instead of an array?**
+   - *Answer:* Inserting or deleting a song in an array requires shifting elements ($O(n)$). In a Doubly Linked List, insertion and deletion are $O(1)$ pointer reassignments once the node is reached. Moving Next and Previous is also an instant $O(1)$ step.
+
+2. **What is the difference between DLL and CLL?**
+   - *Answer:* In a DLL, `head->prev = NULL` and `tail->next = NULL`. In a CLL (Circular Doubly Linked List), `head->prev = tail` and `tail->next = head`. This makes implementing Repeat-All natural without index bounds checks.
+
+3. **Why is FIFO Queue used for "Up Next"?**
+   - *Answer:* Users expect songs they queue first to play first (First-In, First-Out).
+
+4. **Why is LIFO Stack used for the "Back" button?**
+   - *Answer:* The most recently played track must be returned to first (Last-In, First-Out).
+
+5. **Why use In-order Traversal on the BST for the catalogue?**
+   - *Answer:* In a Binary Search Tree, an in-order traversal (`Left -> Root -> Right`) visits keys in strictly ascending alphabetical order, producing a sorted A-Z catalog in $O(n)$ time without needing a separate sorting step.
+
+6. **What is the difference between QuickSort and MergeSort?**
+   - *Answer:* QuickSort is an in-place sorting algorithm with average $O(n \log n)$ time but worst case $O(n^2)$. MergeSort has a guaranteed $O(n \log n)$ time and is **stable** (preserves the relative order of duplicate elements), but requires auxiliary temporary memory.
